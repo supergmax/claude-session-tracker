@@ -30,7 +30,7 @@ try {
 
   saveState(projectRoot, state);
   generateTokenConso(projectRoot, state);
-  if (loadConfig(projectRoot).dashboard !== false) {
+  if (loadConfig(projectRoot).dashboard === true) {
     generateDashboard(projectRoot, state);
   }
 } catch (err) {

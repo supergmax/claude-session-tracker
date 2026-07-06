@@ -2,7 +2,7 @@
   "name": "session-tracker",
   "displayName": "Session Tracker",
   "description": "Per-project token accounting by model, time tracking, full user-prompt log, session resume, and a token-waste audit of skills/MCP/plugins (used vs merely active).",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": {
     "name": "supergmax",
     "url": "https://github.com/supergmax"

@@ -302,9 +302,10 @@ export function sessionDuration(sess) {
 // Configuration optionnelle du plugin
 // { "dashboard": true|false } — <projet>/.claude/session-tracker/config.json
 // surcharge ~/.claude/session-tracker/config.json
+// Le dashboard HTML est DÉSACTIVÉ par défaut : opt-in explicite.
 // ---------------------------------------------------------------------------
 export function loadConfig(projectRoot) {
-  let cfg = { dashboard: true };
+  let cfg = { dashboard: false };
   const files = [
     path.join(os.homedir(), '.claude', 'session-tracker', 'config.json'),
     path.join(projectRoot, '.claude', 'session-tracker', 'config.json'),

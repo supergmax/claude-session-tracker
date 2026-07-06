@@ -1,6 +1,7 @@
 // Génère token_dashboard.html à la racine du projet : un tableau de bord local,
 // autonome (aucune ressource externe), écrit par les hooks — zéro token consommé.
-// Désactivable via { "dashboard": false } dans .claude/session-tracker/config.json.
+// DÉSACTIVÉ par défaut : activez-le avec { "dashboard": true } dans
+// .claude/session-tracker/config.json (projet) ou ~/.claude/session-tracker/config.json.
 import fs from 'node:fs';
 import path from 'node:path';
 import {
@@ -139,7 +140,7 @@ export function generateDashboard(projectRoot, state) {
 
   <footer>
     Prix : ${esc(String(pricing.cacheWriteMultiplier ?? 1.25))}× entrée pour l'écriture cache, ${esc(String(pricing.cacheReadMultiplier ?? 0.1))}× pour la lecture — modifiables dans <code>~/.claude/session-tracker/pricing.json</code>.
-    Pour désactiver ce dashboard : <code>{"dashboard": false}</code> dans <code>.claude/session-tracker/config.json</code>.
+    Dashboard opt-in : <code>{"dashboard": true}</code> dans <code>.claude/session-tracker/config.json</code> (retirez-le pour ne plus le générer).
     Détail complet : <code>token_conso.md</code> · journal : <code>story_log.md</code>.
   </footer>
 </div>
