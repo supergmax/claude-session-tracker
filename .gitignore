@@ -1,0 +1,7 @@
+# État interne généré par le plugin lui-même quand on développe dans ce repo
+.claude/session-tracker/
+token_conso.md
+story_log.md
+
+node_modules/
+*.log
