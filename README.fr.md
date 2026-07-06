@@ -42,13 +42,16 @@ Plus un superpouvoir invisible :
 
 Un vrai `token_conso.md` ressemble à ça :
 
+> - **Temps total passé sur le projet** : 4 h 12 min · **Sessions** : 3
+> - **Coût équivalent API** : **3,85 $** *(ce que ce projet aurait coûté au tarif public de l'API)*
+>
 > ## Tokens par modèle
 >
-> | Modèle | Entrée | Sortie | Cache écrit | Cache lu | Total facturable | Appels |
+> | Modèle | Entrée | Sortie | Cache écrit | Cache lu | Total facturable | Coût API |
 > |---|---:|---:|---:|---:|---:|---:|
-> | `claude-fable-5` | 3 600 | 1 060 | 8 700 | 24 000 | 37 360 | 3 |
-> | `claude-haiku-4-5` | 400 | 80 | 0 | 0 | 480 | 1 |
-> | **Total** | **4 000** | **1 140** | **8 700** | **24 000** | **37 840** | **4** |
+> | `claude-fable-5` | 18 402 | 42 617 | 96 480 | 301 254 | 458 753 | 3,82 $ |
+> | `claude-haiku-4-5` | 3 118 | 1 269 | 11 437 | 37 610 | 53 434 | 0,028 $ |
+> | **Total** | **21 520** | **43 886** | **107 917** | **338 864** | **512 187** | **3,85 $** |
 >
 > ## ⚠️ Actifs mais JAMAIS utilisés (gaspillage potentiel de tokens)
 >

@@ -42,13 +42,16 @@ Plus one invisible superpower:
 
 A real `token_conso.md` looks like this:
 
+> - **Time spent on the project**: 4 h 12 min · **Sessions**: 3
+> - **Equivalent API cost**: **$3.85** *(what this project would have cost at public API rates)*
+>
 > ## Tokens by model
 >
-> | Model | Input | Output | Cache write | Cache read | Billable total | Calls |
+> | Model | Input | Output | Cache write | Cache read | Billable total | API cost |
 > |---|---:|---:|---:|---:|---:|---:|
-> | `claude-fable-5` | 3,600 | 1,060 | 8,700 | 24,000 | 37,360 | 3 |
-> | `claude-haiku-4-5` | 400 | 80 | 0 | 0 | 480 | 1 |
-> | **Total** | **4,000** | **1,140** | **8,700** | **24,000** | **37,840** | **4** |
+> | `claude-fable-5` | 18,402 | 42,617 | 96,480 | 301,254 | 458,753 | $3.82 |
+> | `claude-haiku-4-5` | 3,118 | 1,269 | 11,437 | 37,610 | 53,434 | $0.028 |
+> | **Total** | **21,520** | **43,886** | **107,917** | **338,864** | **512,187** | **$3.85** |
 >
 > ## ⚠️ Active but NEVER used (potential token waste)
 >

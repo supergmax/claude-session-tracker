@@ -330,21 +330,23 @@
           <div class="kpi"><b>4 h 12</b><span>temps passé</span></div>
           <div class="kpi"><b>3</b><span>sessions</span></div>
           <div class="kpi"><b>512 k</b><span>tokens facturables</span></div>
+          <div class="kpi"><b>3,85 $</b><span>coût équiv. API</span></div>
         </div>
 
         <h3>Tokens par modèle</h3>
         <div class="tbl-scroll">
           <table>
             <thead>
-              <tr><th>Modèle</th><th>Entrée</th><th>Sortie</th><th>Cache écrit</th><th>Cache lu</th><th>Total</th><th>Appels</th></tr>
+              <tr><th>Modèle</th><th>Entrée</th><th>Sortie</th><th>Cache écrit</th><th>Cache lu</th><th>Total</th><th>Coût API</th></tr>
             </thead>
             <tbody>
-              <tr><td><code>claude-fable-5</code></td><td>18 402</td><td class="num-out">42 617</td><td>96 480</td><td>301 254</td><td>458 753</td><td>57</td></tr>
-              <tr><td><code>claude-haiku-4-5</code></td><td>3 118</td><td class="num-out">1 269</td><td>11 437</td><td>37 610</td><td>53 434</td><td>9</td></tr>
-              <tr class="total"><td>Total</td><td>21 520</td><td class="num-out">43 886</td><td>107 917</td><td>338 864</td><td>512 187</td><td>66</td></tr>
+              <tr><td><code>claude-fable-5</code></td><td>18 402</td><td class="num-out">42 617</td><td>96 480</td><td>301 254</td><td>458 753</td><td class="num-out">3,82 $</td></tr>
+              <tr><td><code>claude-haiku-4-5</code></td><td>3 118</td><td class="num-out">1 269</td><td>11 437</td><td>37 610</td><td>53 434</td><td class="num-out">0,028 $</td></tr>
+              <tr class="total"><td>Total</td><td>21 520</td><td class="num-out">43 886</td><td>107 917</td><td>338 864</td><td>512 187</td><td class="num-out">3,85 $</td></tr>
             </tbody>
           </table>
         </div>
+        <p class="meta" style="margin-top:6px">Prix modifiables dans <span class="mono">pricing.json</span> — cache écrit 1,25×, cache lu 0,1× le prix d'entrée.</p>
 
         <h3>Skills · MCP · sous-agents utilisés</h3>
         <ul class="usage">
@@ -374,13 +376,13 @@
           <span class="tag">auto-généré</span>
         </div>
         <div class="win-body log">
-          <p class="sess">Session du 06/07 — 1d02c165</p>
-          <div class="msg"><span class="t">21:47</span><div>salut je veux que tu créer un plugin claude pour faire 3 choses…</div></div>
-          <div class="msg"><span class="t">22:03</span><div class="quote">le plugin doit aussi lister tous les skills utilisés
-les MCP utilisés et les plugins utilisés — et je dis bien
-utilisés, pas juste actifs</div></div>
-          <div class="msg"><span class="t">23:12</span><div>ok on va faire un readme.md professionnel en anglais et en français… je veux que tu fasses un truc du tonnerre</div></div>
-          <div class="msg"><span class="t">23:44</span><div>go lance ça</div></div>
+          <p class="sess">Session du 06/07 — a1b2c3d4</p>
+          <div class="msg"><span class="t">09:14</span><div>crée une landing page pour mon SaaS de facturation</div></div>
+          <div class="msg"><span class="t">09:41</span><div class="quote">ajoute :
+- un mode sombre
+- un formulaire de contact relié à Supabase</div></div>
+          <div class="msg"><span class="t">10:20</span><div>corrige le bug d'affichage du hero sur mobile</div></div>
+          <div class="msg"><span class="t">10:52</span><div>génère les tests et déploie en preview sur Vercel</div></div>
         </div>
       </section>
 
@@ -396,10 +398,11 @@ utilisés, pas juste actifs</div></div>
 Sessions précédentes : <span class="w">3</span>
 Temps total          : <span class="w">4 h 12</span>
 Tokens               : <span class="w">468 k</span> entrée / <span class="w">44 k</span> sortie
+Coût équivalent API  : <span class="w">3,85 $</span>
 
 Dernières demandes :
-<span class="d">23:12</span>  readme pro EN/FR, publication GitHub
-<span class="d">23:44</span>  go lance ça
+<span class="d">10:20</span>  corriger le hero sur mobile
+<span class="d">10:52</span>  tests + déploiement preview Vercel
 
 <span class="g">→</span> Reprendre le travail là où il s'était
   arrêté, sans redemander ce qui a déjà
