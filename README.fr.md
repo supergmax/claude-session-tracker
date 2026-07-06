@@ -16,6 +16,11 @@
 
 **Session Tracker répond à tout ça — automatiquement, dans chaque projet, en Markdown.**
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/preview-dark.png">
+  <img src="assets/preview-light.png" alt="Les trois artefacts que Session Tracker maintient dans chaque projet : le rapport de consommation de tokens, le journal des prompts et le briefing de reprise injecté au démarrage de session" width="100%">
+</picture>
+
 </div>
 
 ---

@@ -16,6 +16,11 @@
 
 **Session Tracker answers all of that — automatically, in every project, in plain Markdown.**
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/preview-dark.png">
+  <img src="assets/preview-light.png" alt="The three artifacts Session Tracker maintains in every project: the token consumption report, the user-prompt log, and the resume briefing injected at session start" width="100%">
+</picture>
+
 </div>
 
 ---

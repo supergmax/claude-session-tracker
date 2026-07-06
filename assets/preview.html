@@ -1,0 +1,415 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Session Tracker — aperçu du rendu</title>
+<style>
+  :root {
+    --paper: #F7F8F6;
+    --panel: #FFFFFF;
+    --panel-edge: #DDE3DF;
+    --bar: #EEF1EE;
+    --ink: #1C2321;
+    --ink-soft: #55605B;
+    --ink-faint: #8B948F;
+    --accent: #0F766E;
+    --accent-soft: #E3F0EE;
+    --warn: #B45309;
+    --warn-bg: #FBF3E4;
+    --warn-edge: #ECD9B4;
+    --ok: #1B7F4B;
+    --term-bg: #101513;
+    --term-ink: #C9D6CF;
+    --term-accent: #2DD4BF;
+    --mono: ui-monospace, "Cascadia Code", "Segoe UI Mono", Consolas, Menlo, monospace;
+    --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #101513;
+      --panel: #171E1B;
+      --panel-edge: #26302B;
+      --bar: #1C2521;
+      --ink: #E4EAE6;
+      --ink-soft: #9DA8A2;
+      --ink-faint: #6D7772;
+      --accent: #2DD4BF;
+      --accent-soft: #12312C;
+      --warn: #F0A93C;
+      --warn-bg: #2A2013;
+      --warn-edge: #4A3820;
+      --ok: #4ADE80;
+      --term-bg: #0B0F0D;
+      --term-ink: #C9D6CF;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F7F8F6; --panel: #FFFFFF; --panel-edge: #DDE3DF; --bar: #EEF1EE;
+    --ink: #1C2321; --ink-soft: #55605B; --ink-faint: #8B948F;
+    --accent: #0F766E; --accent-soft: #E3F0EE;
+    --warn: #B45309; --warn-bg: #FBF3E4; --warn-edge: #ECD9B4; --ok: #1B7F4B;
+    --term-bg: #101513; --term-ink: #C9D6CF; --term-accent: #2DD4BF;
+  }
+  :root[data-theme="dark"] {
+    --paper: #101513; --panel: #171E1B; --panel-edge: #26302B; --bar: #1C2521;
+    --ink: #E4EAE6; --ink-soft: #9DA8A2; --ink-faint: #6D7772;
+    --accent: #2DD4BF; --accent-soft: #12312C;
+    --warn: #F0A93C; --warn-bg: #2A2013; --warn-edge: #4A3820; --ok: #4ADE80;
+    --term-bg: #0B0F0D; --term-ink: #C9D6CF; --term-accent: #2DD4BF;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    padding: 40px 20px 72px;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+
+  header.hero { margin-bottom: 36px; }
+  .cmd {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin: 0 0 14px;
+  }
+  .cmd .dollar { color: var(--ink-faint); }
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(26px, 4.5vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  h1 .dim { color: var(--ink-faint); font-weight: 400; }
+  .hero p {
+    max-width: 62ch;
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 15.5px;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 880px) { .board { grid-template-columns: 1fr; } }
+  .side { display: grid; gap: 22px; }
+
+  /* ---- fenêtre fichier ---- */
+  .win {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(15, 25, 20, 0.05), 0 12px 32px -18px rgba(15, 25, 20, 0.18);
+  }
+  .win-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: var(--bar);
+    border-bottom: 1px solid var(--panel-edge);
+  }
+  .dots { display: flex; gap: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--panel-edge); }
+  .win-bar .fname {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .win-bar .tag {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .win-body { padding: 20px 22px 24px; }
+
+  /* ---- markdown rendu ---- */
+  .md h2 {
+    font-size: 17px;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .md h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-soft);
+    margin: 22px 0 8px;
+    font-weight: 600;
+  }
+  .md .meta {
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin: 0 0 4px;
+  }
+  .kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 14px 0 4px;
+  }
+  .kpi {
+    border: 1px solid var(--panel-edge);
+    border-radius: 8px;
+    padding: 8px 14px;
+    min-width: 118px;
+  }
+  .kpi b {
+    display: block;
+    font-family: var(--mono);
+    font-size: 19px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .kpi span {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+  }
+
+  .tbl-scroll { overflow-x: auto; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  th, td { padding: 7px 10px; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--panel-edge);
+    font-weight: 600;
+  }
+  tbody td { border-bottom: 1px solid var(--panel-edge); }
+  tbody tr:last-child td { border-bottom: none; }
+  tr.total td { font-weight: 700; border-top: 2px solid var(--panel-edge); }
+  code, .mono { font-family: var(--mono); font-size: 0.93em; }
+  td code {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  .num-out { color: var(--accent); font-weight: 600; }
+
+  ul.usage { margin: 4px 0 0; padding-left: 18px; font-size: 13.5px; }
+  ul.usage li { margin: 3px 0; }
+  ul.usage .count { color: var(--ink-faint); font-family: var(--mono); font-size: 12px; }
+
+  /* ---- section gaspillage ---- */
+  .waste {
+    margin-top: 22px;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-edge);
+    border-radius: 8px;
+    padding: 14px 16px 15px;
+  }
+  .waste h3 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--warn);
+    font-weight: 700;
+  }
+  .waste p.note {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+    max-width: 62ch;
+  }
+  .waste ul { margin: 0; padding-left: 18px; font-size: 13.5px; }
+  .waste li { margin: 4px 0; }
+  .waste .chip {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--panel);
+    border: 1px solid var(--warn-edge);
+    color: var(--warn);
+    padding: 1px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .waste .ratio { font-family: var(--mono); font-size: 12px; color: var(--warn); font-weight: 700; }
+
+  /* ---- journal ---- */
+  .log { font-size: 13.5px; }
+  .log .sess {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--accent);
+    margin: 16px 0 8px;
+  }
+  .log .sess:first-child { margin-top: 0; }
+  .log .msg { display: flex; gap: 10px; margin: 7px 0; }
+  .log .t {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    flex: none;
+    padding-top: 1px;
+  }
+  .log .quote {
+    border-left: 2px solid var(--panel-edge);
+    padding-left: 10px;
+    color: var(--ink-soft);
+    white-space: pre-line;
+  }
+
+  /* ---- terminal reprise ---- */
+  .term {
+    background: var(--term-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--panel-edge);
+  }
+  .term .win-bar { background: rgba(255,255,255,0.05); border-bottom-color: rgba(255,255,255,0.08); }
+  .term .fname { color: #7E8C85; }
+  .term pre {
+    margin: 0;
+    padding: 18px 20px 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--term-ink);
+    overflow-x: auto;
+  }
+  .term .g { color: var(--term-accent); }
+  .term .d { color: #64716B; }
+  .term .w { color: #E8EFEA; font-weight: 600; }
+
+  footer {
+    margin-top: 34px;
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:focus-visible, .win:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style></head><body>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="cmd"><span class="dollar">$</span> claude&ensp;<span class="dim">·</span>&ensp;plugin actif : session-tracker@supergmax</p>
+    <h1>Ce que le plugin dépose <span class="dim">à la racine de chaque projet</span></h1>
+    <p>Trois artefacts, mis à jour à chaque réponse : le rapport de consommation, le journal de tes messages, et le briefing que Claude reçoit quand tu rouvres le projet. Données ci-dessous : un projet réel après 3 sessions.</p>
+  </header>
+
+  <div class="board">
+    <!-- ================= token_conso.md ================= -->
+    <section class="win" aria-label="Aperçu de token_conso.md">
+      <div class="win-bar">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="fname">token_conso.md</span>
+        <span class="tag">auto-généré</span>
+      </div>
+      <div class="win-body md">
+        <h2>📊 Consommation du projet</h2>
+        <p class="meta">Dernière mise à jour : 06/07/2026 23:51</p>
+
+        <div class="kpis">
+          <div class="kpi"><b>4 h 12</b><span>temps passé</span></div>
+          <div class="kpi"><b>3</b><span>sessions</span></div>
+          <div class="kpi"><b>512 k</b><span>tokens facturables</span></div>
+        </div>
+
+        <h3>Tokens par modèle</h3>
+        <div class="tbl-scroll">
+          <table>
+            <thead>
+              <tr><th>Modèle</th><th>Entrée</th><th>Sortie</th><th>Cache écrit</th><th>Cache lu</th><th>Total</th><th>Appels</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>claude-fable-5</code></td><td>18 402</td><td class="num-out">42 617</td><td>96 480</td><td>301 254</td><td>458 753</td><td>57</td></tr>
+              <tr><td><code>claude-haiku-4-5</code></td><td>3 118</td><td class="num-out">1 269</td><td>11 437</td><td>37 610</td><td>53 434</td><td>9</td></tr>
+              <tr class="total"><td>Total</td><td>21 520</td><td class="num-out">43 886</td><td>107 917</td><td>338 864</td><td>512 187</td><td>66</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Skills · MCP · sous-agents utilisés</h3>
+        <ul class="usage">
+          <li><code>vercel:deploy</code> <span class="count">2×</span> · <code>graphify</code> <span class="count">1×</span></li>
+          <li><strong>supabase</strong> — <code>list_tables</code> <span class="count">3×</span>, <code>execute_sql</code> <span class="count">2×</span></li>
+          <li>sous-agents : <code>Explore</code> <span class="count">2×</span>, <code>claude-code-guide</code> <span class="count">1×</span></li>
+        </ul>
+
+        <div class="waste">
+          <h3>⚠️ Actifs mais jamais utilisés</h3>
+          <p class="note">Chaque élément actif injecte ses définitions dans le contexte de chaque session, même sans être appelé une seule fois.</p>
+          <ul>
+            <li><span class="ratio">4/5</span> skills dormants : <span class="chip">norag</span> <span class="chip">professional-web-builder</span> <span class="chip">youtube-channel-list</span> <span class="chip">graphify-mashreq</span></li>
+            <li><span class="ratio">1/2</span> serveur MCP jamais appelé : <span class="chip">supabase-personal</span></li>
+            <li><span class="ratio">9/11</span> plugins sans utilisation détectée : <span class="chip">superpowers</span> <span class="chip">frontend-design</span> <span class="chip">remember</span> +6</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="side">
+      <!-- ================= story_log.md ================= -->
+      <section class="win" aria-label="Aperçu de story_log.md">
+        <div class="win-bar">
+          <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+          <span class="fname">story_log.md</span>
+          <span class="tag">auto-généré</span>
+        </div>
+        <div class="win-body log">
+          <p class="sess">Session du 06/07 — 1d02c165</p>
+          <div class="msg"><span class="t">21:47</span><div>salut je veux que tu créer un plugin claude pour faire 3 choses…</div></div>
+          <div class="msg"><span class="t">22:03</span><div class="quote">le plugin doit aussi lister tous les skills utilisés
+les MCP utilisés et les plugins utilisés — et je dis bien
+utilisés, pas juste actifs</div></div>
+          <div class="msg"><span class="t">23:12</span><div>ok on va faire un readme.md professionnel en anglais et en français… je veux que tu fasses un truc du tonnerre</div></div>
+          <div class="msg"><span class="t">23:44</span><div>go lance ça</div></div>
+        </div>
+      </section>
+
+      <!-- ================= briefing de reprise ================= -->
+      <section class="win term" aria-label="Briefing de reprise injecté au démarrage">
+        <div class="win-bar">
+          <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+          <span class="fname">SessionStart · contexte injecté</span>
+        </div>
+        <pre>
+<span class="g">[session-tracker]</span> <span class="w">REPRISE DE PROJET</span>
+<span class="d">──────────────────────────────────</span>
+Sessions précédentes : <span class="w">3</span>
+Temps total          : <span class="w">4 h 12</span>
+Tokens               : <span class="w">468 k</span> entrée / <span class="w">44 k</span> sortie
+
+Dernières demandes :
+<span class="d">23:12</span>  readme pro EN/FR, publication GitHub
+<span class="d">23:44</span>  go lance ça
+
+<span class="g">→</span> Reprendre le travail là où il s'était
+  arrêté, sans redemander ce qui a déjà
+  été décidé.</pre>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    session-tracker · <a href="https://github.com/supergmax/claude-session-tracker">github.com/supergmax/claude-session-tracker</a> · MIT
+  </footer>
+</div>
+</body></html>
