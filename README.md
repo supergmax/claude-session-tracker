@@ -31,7 +31,7 @@ Once installed, every Claude Code project automatically maintains two living rep
 
 | File | What's inside |
 |---|---|
-| 📊 **`token_conso.md`** | Exact token counts (input / output / cache write / cache read) **per model**, total **time spent on the project**, a per-session breakdown, everything you **actually used** (skills, MCP tools, subagents, plugins)… and everything that is **active but never used** — your token waste. |
+| 📊 **`token_conso.md`** | Exact token counts (input / output / cache write / cache read) **per model**, the **equivalent API cost in $** (editable price list), total **time spent on the project**, a per-session breakdown, everything you **actually used** (skills, MCP tools, subagents, plugins)… and everything that is **active but never used** — your token waste. |
 | 📖 **`story_log.md`** | A timestamped log of **every message you sent**, grouped by session. Your project's story, told through your own prompts. |
 
 Plus one invisible superpower:
@@ -57,6 +57,18 @@ A real `token_conso.md` looks like this:
 > - **Enabled plugins with no detected usage** (9/11): `superpowers`, `frontend-design`, …
 
 That last section is the one that pays for itself: every active skill, MCP server or plugin injects its descriptions and tool definitions into the context of **every single session** — even when you never call it. Session Tracker shows you exactly what to disable.
+
+## 💵 API cost estimation
+
+Every report includes what the project **would have cost through the API**, per model and per session — computed from an **editable price list** (USD per million tokens, cache writes at 1.25× input, cache reads at 0.1×):
+
+- Defaults ship with the plugin (Anthropic's public pricing as of July 2026).
+- Override globally in `~/.claude/session-tracker/pricing.json` (created for you on first run, never overwritten).
+- Override per project in `<project>/.claude/session-tracker/pricing.json`.
+
+Models are matched by longest name prefix, so `claude-haiku-4-5-20251001` picks up the `claude-haiku-4-5` price. New model? Just add a line to the JSON. The report shows the exact price table it used, with a ✓ next to the rates your project actually hit.
+
+> ℹ️ On a Claude Code subscription you don't pay these amounts — it's the *API-equivalent* value of your usage, which is exactly what makes it a great waste detector.
 
 ## 🚀 Installation
 

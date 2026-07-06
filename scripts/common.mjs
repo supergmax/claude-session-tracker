@@ -201,6 +201,70 @@ export function scanActiveInventory(projectRoot) {
 }
 
 // ---------------------------------------------------------------------------
+// Prix des modèles (USD / million de tokens) — modifiables par l'utilisateur
+// Résolution : <projet>/.claude/session-tracker/pricing.json
+//            > ~/.claude/session-tracker/pricing.json (créé au premier lancement)
+//            > pricing.default.json (livré avec le plugin)
+// ---------------------------------------------------------------------------
+export function loadPricing(projectRoot) {
+  const scriptDir = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+  let pricing = { currency: 'USD', cacheWriteMultiplier: 1.25, cacheReadMultiplier: 0.1, models: {} };
+  const defaultPath = path.join(scriptDir, 'pricing.default.json');
+  try {
+    pricing = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
+  } catch { /* défauts codés en dur ci-dessus */ }
+
+  // Crée la copie éditable globale au premier lancement
+  const userPath = path.join(os.homedir(), '.claude', 'session-tracker', 'pricing.json');
+  try {
+    if (!fs.existsSync(userPath)) {
+      fs.mkdirSync(path.dirname(userPath), { recursive: true });
+      const editable = { ...pricing, $comment: 'Prix en USD par MILLION de tokens — MODIFIEZ CE FICHIER librement (il n\'est jamais écrasé). Il remplace les prix par défaut du plugin ; un fichier <projet>/.claude/session-tracker/pricing.json peut encore le surcharger par projet. Correspondance par plus long préfixe de nom de modèle.' };
+      fs.writeFileSync(userPath, JSON.stringify(editable, null, 2), 'utf8');
+    }
+  } catch { /* best effort */ }
+
+  for (const p of [userPath, path.join(projectRoot, '.claude', 'session-tracker', 'pricing.json')]) {
+    try {
+      const o = JSON.parse(fs.readFileSync(p, 'utf8'));
+      pricing = {
+        ...pricing,
+        ...o,
+        models: { ...pricing.models, ...(o.models || {}) },
+      };
+    } catch { /* fichier absent ou invalide */ }
+  }
+  return pricing;
+}
+
+function priceFor(model, pricing) {
+  const models = pricing.models || {};
+  let best = null;
+  for (const key of Object.keys(models)) {
+    if (key !== 'default' && model.startsWith(key) && (!best || key.length > best.length)) best = key;
+  }
+  return models[best] || models.default || { input: 0, output: 0 };
+}
+
+export function costOfUsage(model, u, pricing) {
+  const p = priceFor(model, pricing);
+  const cw = pricing.cacheWriteMultiplier ?? 1.25;
+  const cr = pricing.cacheReadMultiplier ?? 0.1;
+  return (
+    (u.input || 0) * p.input +
+    (u.output || 0) * p.output +
+    (u.cacheWrite || 0) * p.input * cw +
+    (u.cacheRead || 0) * p.input * cr
+  ) / 1_000_000;
+}
+
+export function fmtUsd(n) {
+  if (!n) return '0,00 $';
+  const digits = n >= 1 ? 2 : n >= 0.01 ? 3 : 4;
+  return `${n.toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits })} $`;
+}
+
+// ---------------------------------------------------------------------------
 // Helpers de mise en forme
 // ---------------------------------------------------------------------------
 export function fmtInt(n) {
@@ -263,6 +327,8 @@ export function generateTokenConso(projectRoot, state) {
   }
 
   const inv = scanActiveInventory(projectRoot);
+  const pricing = loadPricing(projectRoot);
+  const totalCost = Object.entries(models).reduce((acc, [model, u]) => acc + costOfUsage(model, u, pricing), 0);
 
   const lines = [];
   lines.push('# 📊 Consommation du projet');
@@ -271,6 +337,7 @@ export function generateTokenConso(projectRoot, state) {
   lines.push('');
   lines.push(`- **Temps total passé sur le projet** : ${fmtDuration(totalMs)}`);
   lines.push(`- **Sessions** : ${sessions.length}`);
+  lines.push(`- **Coût équivalent API** : **${fmtUsd(totalCost)}** _(ce que ce projet aurait coûté en payant l'API au tarif public — voir [Tarifs](#-tarifs-utilisés-modifiables))_`);
   lines.push('');
 
   // --- Tokens par modèle ---
@@ -279,28 +346,54 @@ export function generateTokenConso(projectRoot, state) {
   if (Object.keys(models).length === 0) {
     lines.push('_Aucune donnée pour le moment._');
   } else {
-    lines.push('| Modèle | Entrée | Sortie | Cache écrit | Cache lu | Total facturable | Appels |');
-    lines.push('|---|---:|---:|---:|---:|---:|---:|');
+    lines.push('| Modèle | Entrée | Sortie | Cache écrit | Cache lu | Total facturable | Appels | Coût API |');
+    lines.push('|---|---:|---:|---:|---:|---:|---:|---:|');
     let ti = 0, to = 0, tcw = 0, tcr = 0, tc = 0;
     for (const [model, m] of Object.entries(models).sort((a, b) => (b[1].input + b[1].output) - (a[1].input + a[1].output))) {
       const total = m.input + m.output + m.cacheWrite + m.cacheRead;
-      lines.push(`| \`${model}\` | ${fmtInt(m.input)} | ${fmtInt(m.output)} | ${fmtInt(m.cacheWrite)} | ${fmtInt(m.cacheRead)} | ${fmtInt(total)} | ${fmtInt(m.calls)} |`);
+      lines.push(`| \`${model}\` | ${fmtInt(m.input)} | ${fmtInt(m.output)} | ${fmtInt(m.cacheWrite)} | ${fmtInt(m.cacheRead)} | ${fmtInt(total)} | ${fmtInt(m.calls)} | ${fmtUsd(costOfUsage(model, m, pricing))} |`);
       ti += m.input; to += m.output; tcw += m.cacheWrite; tcr += m.cacheRead; tc += m.calls;
     }
-    lines.push(`| **Total** | **${fmtInt(ti)}** | **${fmtInt(to)}** | **${fmtInt(tcw)}** | **${fmtInt(tcr)}** | **${fmtInt(ti + to + tcw + tcr)}** | **${fmtInt(tc)}** |`);
+    lines.push(`| **Total** | **${fmtInt(ti)}** | **${fmtInt(to)}** | **${fmtInt(tcw)}** | **${fmtInt(tcr)}** | **${fmtInt(ti + to + tcw + tcr)}** | **${fmtInt(tc)}** | **${fmtUsd(totalCost)}** |`);
   }
   lines.push('');
 
   // --- Sessions ---
   lines.push('## Sessions');
   lines.push('');
-  lines.push('| Début | Durée | Prompts | Tokens entrée | Tokens sortie | Statut |');
-  lines.push('|---|---|---:|---:|---:|---|');
+  lines.push('| Début | Durée | Prompts | Tokens entrée | Tokens sortie | Coût API | Statut |');
+  lines.push('|---|---|---:|---:|---:|---:|---|');
   for (const [, sess] of sessions.sort((a, b) => String(a[1].startedAt).localeCompare(String(b[1].startedAt)))) {
-    let si = 0, so = 0;
-    for (const u of Object.values(sess.models || {})) { si += u.input + u.cacheWrite + u.cacheRead; so += u.output; }
-    lines.push(`| ${fmtDate(sess.firstTs || sess.startedAt)} | ${fmtDuration(sessionDuration(sess))} | ${(sess.prompts || []).length} | ${fmtInt(si)} | ${fmtInt(so)} | ${sess.endedAt ? 'terminée' : 'en cours'} |`);
+    let si = 0, so = 0, sc = 0;
+    for (const [model, u] of Object.entries(sess.models || {})) {
+      si += u.input + u.cacheWrite + u.cacheRead;
+      so += u.output;
+      sc += costOfUsage(model, u, pricing);
+    }
+    lines.push(`| ${fmtDate(sess.firstTs || sess.startedAt)} | ${fmtDuration(sessionDuration(sess))} | ${(sess.prompts || []).length} | ${fmtInt(si)} | ${fmtInt(so)} | ${fmtUsd(sc)} | ${sess.endedAt ? 'terminée' : 'en cours'} |`);
   }
+  lines.push('');
+
+  // --- Tarifs ---
+  lines.push('## 💵 Tarifs utilisés (modifiables)');
+  lines.push('');
+  lines.push(`| Modèle (préfixe) | Entrée $/M | Sortie $/M |`);
+  lines.push('|---|---:|---:|');
+  const usedModelNames = Object.keys(models);
+  const relevantPrefixes = new Set();
+  for (const m of usedModelNames) {
+    let best = null;
+    for (const key of Object.keys(pricing.models || {})) {
+      if (key !== 'default' && m.startsWith(key) && (!best || key.length > best.length)) best = key;
+    }
+    relevantPrefixes.add(best || 'default');
+  }
+  for (const [key, p] of Object.entries(pricing.models || {})) {
+    const mark = relevantPrefixes.has(key) ? ' ✓' : '';
+    lines.push(`| \`${key}\`${mark} | ${p.input} | ${p.output} |`);
+  }
+  lines.push('');
+  lines.push(`_Cache : écriture = ${pricing.cacheWriteMultiplier ?? 1.25}× le prix d'entrée, lecture = ${pricing.cacheReadMultiplier ?? 0.1}× (✓ = tarif utilisé par ce projet). Pour modifier les prix : éditez \`~/.claude/session-tracker/pricing.json\` (global) ou \`.claude/session-tracker/pricing.json\` dans le projet. Les montants sont une estimation « équivalent API » : avec un abonnement Claude Code, vous ne payez pas ces sommes._`);
   lines.push('');
 
   // --- Utilisation réelle ---

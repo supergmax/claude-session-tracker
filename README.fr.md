@@ -31,7 +31,7 @@ Une fois installé, chaque projet Claude Code maintient automatiquement deux rap
 
 | Fichier | Contenu |
 |---|---|
-| 📊 **`token_conso.md`** | Le compte exact des tokens (entrée / sortie / cache écrit / cache lu) **par modèle**, le **temps total passé sur le projet**, le détail par session, tout ce que vous avez **réellement utilisé** (skills, outils MCP, sous-agents, plugins)… et tout ce qui est **actif mais jamais utilisé** — votre gaspillage de tokens. |
+| 📊 **`token_conso.md`** | Le compte exact des tokens (entrée / sortie / cache écrit / cache lu) **par modèle**, le **coût équivalent API en $** (liste de prix modifiable), le **temps total passé sur le projet**, le détail par session, tout ce que vous avez **réellement utilisé** (skills, outils MCP, sous-agents, plugins)… et tout ce qui est **actif mais jamais utilisé** — votre gaspillage de tokens. |
 | 📖 **`story_log.md`** | Le journal horodaté de **tous les messages que vous avez envoyés**, groupés par session. L'histoire de votre projet, racontée par vos propres prompts. |
 
 Plus un superpouvoir invisible :
@@ -57,6 +57,18 @@ Un vrai `token_conso.md` ressemble à ça :
 > - **Plugins activés sans utilisation détectée** (9/11) : `superpowers`, `frontend-design`, …
 
 Cette dernière section est celle qui rembourse le plugin : chaque skill, serveur MCP ou plugin actif injecte ses descriptions et définitions d'outils dans le contexte de **chaque session** — même si vous ne l'appelez jamais. Session Tracker vous montre exactement quoi désactiver.
+
+## 💵 Estimation du coût API
+
+Chaque rapport indique ce que le projet **aurait coûté via l'API**, par modèle et par session — calculé depuis une **liste de prix modifiable** (USD par million de tokens, écriture cache à 1,25× l'entrée, lecture cache à 0,1×) :
+
+- Les prix par défaut sont livrés avec le plugin (tarifs publics Anthropic, juillet 2026).
+- Surcharge globale dans `~/.claude/session-tracker/pricing.json` (créé automatiquement au premier lancement, jamais écrasé).
+- Surcharge par projet dans `<projet>/.claude/session-tracker/pricing.json`.
+
+Les modèles sont reconnus par plus long préfixe de nom : `claude-haiku-4-5-20251001` utilise le tarif `claude-haiku-4-5`. Nouveau modèle ? Ajoutez une ligne au JSON. Le rapport affiche la table de prix exacte utilisée, avec un ✓ sur les tarifs réellement appliqués à votre projet.
+
+> ℹ️ Avec un abonnement Claude Code vous ne payez pas ces montants — c'est la valeur *équivalent API* de votre consommation, et c'est justement ce qui en fait un excellent détecteur de gaspillage.
 
 ## 🚀 Installation
 

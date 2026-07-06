@@ -1,0 +1,21 @@
+{
+  "$comment": "Prix par défaut en USD par MILLION de tokens (source : docs Anthropic, juillet 2026). NE MODIFIEZ PAS CE FICHIER : il est écrasé à chaque mise à jour du plugin. Pour personnaliser, éditez ~/.claude/session-tracker/pricing.json (global) ou <projet>/.claude/session-tracker/pricing.json (par projet). La correspondance des modèles se fait par plus long préfixe : 'claude-haiku-4-5-20251001' utilise l'entrée 'claude-haiku-4-5'.",
+  "currency": "USD",
+  "cacheWriteMultiplier": 1.25,
+  "cacheReadMultiplier": 0.1,
+  "models": {
+    "claude-fable-5": { "input": 10, "output": 50 },
+    "claude-mythos-5": { "input": 10, "output": 50 },
+    "claude-opus-4-8": { "input": 5, "output": 25 },
+    "claude-opus-4-7": { "input": 5, "output": 25 },
+    "claude-opus-4-6": { "input": 5, "output": 25 },
+    "claude-opus-4-5": { "input": 5, "output": 25 },
+    "claude-opus-4-1": { "input": 15, "output": 75 },
+    "claude-opus-4": { "input": 15, "output": 75 },
+    "claude-sonnet-5": { "input": 3, "output": 15 },
+    "claude-sonnet-4": { "input": 3, "output": 15 },
+    "claude-haiku-4-5": { "input": 1, "output": 5 },
+    "claude-haiku": { "input": 1, "output": 5 },
+    "default": { "input": 5, "output": 25 }
+  }
+}
