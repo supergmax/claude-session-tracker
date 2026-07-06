@@ -33,6 +33,7 @@ Une fois installé, chaque projet Claude Code maintient automatiquement deux rap
 |---|---|
 | 📊 **`token_conso.md`** | Le compte exact des tokens (entrée / sortie / cache écrit / cache lu) **par modèle**, le **coût équivalent API en $** (liste de prix modifiable), le **temps total passé sur le projet**, le détail par session, tout ce que vous avez **réellement utilisé** (skills, outils MCP, sous-agents, plugins)… et tout ce qui est **actif mais jamais utilisé** — votre gaspillage de tokens. |
 | 📖 **`story_log.md`** | Le journal horodaté de **tous les messages que vous avez envoyés**, groupés par session. L'histoire de votre projet, racontée par vos propres prompts. |
+| 📈 **`token_dashboard.html`** | Les mêmes données en **tableau de bord local** : ouvrez-le dans votre navigateur, rafraîchissez après chaque réponse. Généré par les hooks eux-mêmes — **zéro token supplémentaire**, pas de cloud, pas d'artifact. Désactivable avec `{"dashboard": false}` dans `.claude/session-tracker/config.json` si vous ne voulez que le Markdown. |
 
 Plus un superpouvoir invisible :
 
@@ -133,9 +134,11 @@ Les tokens sont lus directement dans le transcript officiel de la session (`mess
 ```
 votre-projet/
 ├── token_conso.md                      # 📊 le rapport de consommation
+├── token_dashboard.html                # 📈 le dashboard local (optionnel, zéro token)
 ├── story_log.md                        # 📖 le journal de vos prompts
 └── .claude/session-tracker/
     ├── state.json                      # état de reprise (local, par projet)
+    ├── config.json                     # optionnel : {"dashboard": false}, prix par projet
     └── error.log                       # seulement si quelque chose a mal tourné
 ```
 

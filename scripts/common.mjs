@@ -299,11 +299,30 @@ export function sessionDuration(sess) {
 }
 
 // ---------------------------------------------------------------------------
-// Génération de token_conso.md
+// Configuration optionnelle du plugin
+// { "dashboard": true|false } — <projet>/.claude/session-tracker/config.json
+// surcharge ~/.claude/session-tracker/config.json
 // ---------------------------------------------------------------------------
-export function generateTokenConso(projectRoot, state) {
-  const sessions = Object.entries(state.sessions || {});
-  // Agrégats globaux
+export function loadConfig(projectRoot) {
+  let cfg = { dashboard: true };
+  const files = [
+    path.join(os.homedir(), '.claude', 'session-tracker', 'config.json'),
+    path.join(projectRoot, '.claude', 'session-tracker', 'config.json'),
+  ];
+  for (const f of files) {
+    try {
+      cfg = { ...cfg, ...JSON.parse(fs.readFileSync(f, 'utf8')) };
+    } catch { /* fichier absent */ }
+  }
+  return cfg;
+}
+
+// ---------------------------------------------------------------------------
+// Agrégats globaux à partir de l'état (partagés entre le .md et le dashboard)
+// ---------------------------------------------------------------------------
+export function computeAggregates(state) {
+  const sessions = Object.entries(state.sessions || {})
+    .sort((a, b) => String(a[1].startedAt).localeCompare(String(b[1].startedAt)));
   const models = {};
   const usedSkills = {};
   const usedMcp = {};
@@ -325,7 +344,24 @@ export function generateTokenConso(projectRoot, state) {
     for (const [k, v] of Object.entries(sess.agents || {})) usedAgents[k] = (usedAgents[k] || 0) + v;
     for (const [k, v] of Object.entries(sess.plugins || {})) usedPlugins[k] = (usedPlugins[k] || 0) + v;
   }
+  return { sessions, models, usedSkills, usedMcp, usedAgents, usedPlugins, totalMs };
+}
 
+export function computeUnused(inv, agg) {
+  const usedSkillBases = new Set(Object.keys(agg.usedSkills).map((s) => s.includes(':') ? s.split(':')[1] : s));
+  const usedPluginSet = new Set(Object.keys(agg.usedPlugins).map((p) => p.toLowerCase()));
+  return {
+    skills: [...inv.skills].filter((s) => !usedSkillBases.has(s)).sort(),
+    mcp: [...inv.mcpServers].filter((s) => !agg.usedMcp[s]).sort(),
+    plugins: [...inv.plugins].filter((p) => !usedPluginSet.has(p.toLowerCase()) && p !== 'session-tracker').sort(),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Génération de token_conso.md
+// ---------------------------------------------------------------------------
+export function generateTokenConso(projectRoot, state) {
+  const { sessions, models, usedSkills, usedMcp, usedAgents, usedPlugins, totalMs } = computeAggregates(state);
   const inv = scanActiveInventory(projectRoot);
   const pricing = loadPricing(projectRoot);
   const totalCost = Object.entries(models).reduce((acc, [model, u]) => acc + costOfUsage(model, u, pricing), 0);
@@ -435,11 +471,7 @@ export function generateTokenConso(projectRoot, state) {
   lines.push('> Chaque skill, serveur MCP ou plugin actif injecte sa description / ses définitions d\'outils');
   lines.push('> dans le contexte de CHAQUE session, même s\'il n\'est jamais appelé.');
   lines.push('');
-  const usedSkillBases = new Set(Object.keys(usedSkills).map((s) => s.includes(':') ? s.split(':')[1] : s));
-  const unusedSkills = [...inv.skills].filter((s) => !usedSkillBases.has(s)).sort();
-  const unusedMcp = [...inv.mcpServers].filter((s) => !usedMcp[s]).sort();
-  const usedPluginSet = new Set(Object.keys(usedPlugins).map((p) => p.toLowerCase()));
-  const unusedPlugins = [...inv.plugins].filter((p) => !usedPluginSet.has(p.toLowerCase()) && p !== 'session-tracker').sort();
+  const { skills: unusedSkills, mcp: unusedMcp, plugins: unusedPlugins } = computeUnused(inv, { usedSkills, usedMcp, usedPlugins });
 
   lines.push(`- **Skills actifs jamais utilisés** (${unusedSkills.length}/${inv.skills.size} détectés) : ${unusedSkills.length ? unusedSkills.map((s) => `\`${s}\``).join(', ') : '_aucun_ ✅'}`);
   lines.push(`- **Serveurs MCP configurés jamais appelés** (${unusedMcp.length}/${inv.mcpServers.size} détectés) : ${unusedMcp.length ? unusedMcp.map((s) => `\`${s}\``).join(', ') : '_aucun_ ✅'}`);

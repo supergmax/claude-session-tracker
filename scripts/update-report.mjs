@@ -1,6 +1,7 @@
 // Hook Stop + SessionEnd : analyse le transcript de la session, met à jour l'état
 // (tokens par modèle, skills/MCP/agents/plugins utilisés, durée) et régénère token_conso.md.
-import { readStdinJson, loadState, saveState, getSession, parseTranscript, generateTokenConso, logError } from './common.mjs';
+import { readStdinJson, loadState, saveState, getSession, parseTranscript, generateTokenConso, loadConfig, logError } from './common.mjs';
+import { generateDashboard } from './dashboard.mjs';
 
 const payload = readStdinJson();
 if (!payload) process.exit(0);
@@ -29,6 +30,9 @@ try {
 
   saveState(projectRoot, state);
   generateTokenConso(projectRoot, state);
+  if (loadConfig(projectRoot).dashboard !== false) {
+    generateDashboard(projectRoot, state);
+  }
 } catch (err) {
   logError(projectRoot, err);
 }
