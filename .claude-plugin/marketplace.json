@@ -1,5 +1,6 @@
 {
   "name": "supergmax",
+  "description": "Plugins by supergmax — session-tracker: token accounting, time tracking, prompt log, session resume and token-waste audit for Claude Code projects.",
   "owner": {
     "name": "supergmax",
     "url": "https://github.com/supergmax"
