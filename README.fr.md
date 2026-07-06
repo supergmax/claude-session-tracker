@@ -164,4 +164,6 @@ Issues et PRs bienvenues ! Des idées qui iraient bien : estimation du coût en 
 
 *Construit avec Claude Code, pour Claude Code.* 🤖
 
+Vous utilisez **Cursor, Codex CLI, Gemini CLI ou un autre outil IA ?** Voyez [universal-session-tracker](https://github.com/supergmax/universal-session-tracker) — mêmes rapports, un adaptateur par outil.
+
 </div>
